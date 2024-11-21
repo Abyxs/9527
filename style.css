@@ -1463,7 +1463,7 @@ html {
 
 /* 为了防止导航栏遮挡内容，给每个分类添加上边距 */
 .tool-category {
-    scroll-margin-top: 70px; /* 根���导航栏高度调整 */
+    scroll-margin-top: 70px; /* 根导航栏高度调整 */
 } 
 
 /* 响应式布局调整 */
@@ -1576,5 +1576,112 @@ html {
     .search-result-item {
         padding: 0.6rem 0.8rem;
         font-size: 0.9rem;
+    }
+} 
+
+/* 移动端布局 */
+@media screen and (max-width: 768px) {
+    /* 确保时钟和天气板块都被隐藏 */
+    .clock-container,
+    .weather-container,
+    .header-widgets,  /* 添加父容器 */
+    #weather-widget,  /* 添加天气组件ID */
+    .weather-info {   /* 添加天气信息类 */
+        display: none !important; /* 使用!important确保隐藏 */
+    }
+
+    /* 调整标题布局 */
+    header {
+        display: block;
+        padding: 1rem;
+    }
+
+    .header-content {
+        text-align: center;
+        padding: 0.5rem;
+    }
+
+    .header-content h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+    }
+}
+
+/* 更小屏幕的优化 */
+@media screen and (max-width: 360px) {
+    .header-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+    }
+} 
+
+/* 移动端导航栏布局 */
+@media screen and (max-width: 768px) {
+    /* 导航栏容器 */
+    nav {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        padding: 0.5rem 0;
+    }
+
+    .nav-container {
+        padding: 0;
+    }
+
+    /* 导航列表 - 两行五个布局 */
+    nav ul {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr); /* 5列 */
+        grid-template-rows: repeat(2, auto);    /* 2行 */
+        gap: 0.5rem;
+        padding: 0.5rem;
+        margin: 0;
+    }
+
+    /* 导航项目样式 */
+    nav ul li {
+        padding: 0;
+    }
+
+    nav ul li a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 0.4rem 0.2rem;
+        font-size: 0.8rem;
+        white-space: nowrap; /* 防止文字换行 */
+    }
+
+    nav ul li a i {
+        font-size: 1.2rem;
+        margin-bottom: 0.3rem;
+    }
+
+    /* 确保第二行对齐 */
+    nav ul li:nth-child(n+6) {
+        margin-top: 0;
+    }
+}
+
+/* 更小屏幕的优化 */
+@media screen and (max-width: 360px) {
+    nav ul li a {
+        font-size: 0.75rem;
+    }
+
+    nav ul li a i {
+        font-size: 1.1rem;
     }
 } 
