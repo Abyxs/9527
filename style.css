@@ -2174,7 +2174,8 @@ h1#mainTitle.playing {
 .snow-toggle {
     width: 40px;
     height: 40px;
-    background: rgba(128, 128, 128, 0.3);
+    background: rgba(70, 70, 70, 0.5);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(5px);
     border-radius: 50%;
     display: flex;
@@ -2199,11 +2200,11 @@ h1#mainTitle.playing {
     .snow-toggle {
         position: fixed;
         top: auto;
-        right: 150px;
-        bottom: 478px;
+        right: 130px;
+        bottom: 375px;
         width: 35px;
         height: 35px;
-        background: rgba(255, 255, 255, 0.2);
+        background: #f2878733;
         backdrop-filter: blur(5px);
         border-radius: 50%;
         display: flex;
@@ -2232,11 +2233,11 @@ h1#mainTitle.playing {
     .favorite-toggle {
         position: fixed;
         top: auto;
-        right: 100px;
-        bottom: 478px;
+        right: 80px;
+        bottom: 375px;
         width: 35px;
         height: 35px;
-        background: rgba(255, 255, 255, 0.2);
+        background: #f2878733;
         backdrop-filter: blur(5px);
         border-radius: 50%;
         display: flex;
