@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // 搜索相关代码
     const toolSearch = document.getElementById('toolSearch');
     const searchResult = document.getElementById('searchResult');
     
@@ -77,34 +78,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 等待DOM加载完成
+    // 雪花相关代码
     let snowInterval;
     let isSnowing = false;
 
-    // 创建雪花函数
     function createSnowflake() {
         const snowflake = document.createElement('div');
         snowflake.classList.add('snowflake');
         snowflake.innerHTML = '❅';
         
-        // 随机位置和大小
         snowflake.style.left = Math.random() * 100 + 'vw';
         snowflake.style.fontSize = (Math.random() * 15 + 8) + 'px';
         snowflake.style.opacity = Math.random() * 0.8 + 0.2;
         
-        // 随机动画持续时间
         const duration = Math.random() * 5 + 8;
         snowflake.style.animationDuration = duration + 's';
         
         document.body.appendChild(snowflake);
         
-        // 动画结束后移除
         setTimeout(() => {
             snowflake.remove();
         }, duration * 1000);
     }
 
-    // 开始下雪
     function startSnowfall() {
         if (!isSnowing) {
             isSnowing = true;
@@ -113,20 +109,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // 停止下雪
     function stopSnowfall() {
         if (isSnowing) {
             isSnowing = false;
             clearInterval(snowInterval);
             document.querySelector('.snow-toggle').classList.remove('active');
-            // 清除现有的雪花
             document.querySelectorAll('.snowflake').forEach(snowflake => {
                 snowflake.remove();
             });
         }
     }
 
-    // 绑定点击事件
     const snowToggle = document.querySelector('.snow-toggle');
     if (snowToggle) {
         snowToggle.addEventListener('click', function() {
@@ -138,70 +131,184 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 页面加载时自动开始下雪
-    startSnowfall();
-});
+    // 收藏相关代码
+    const favoriteHearts = document.querySelectorAll('.tool-item .favorite-heart');
+    const favoriteToggle = document.querySelector('.favorite-toggle');
+    let favoriteList = null;
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-// 音乐播放器功能
-class MusicPlayer {
-    constructor() {
-        this.audioPlayer = document.getElementById('musicPlayer');
-        this.radioIcon = document.getElementById('radioIcon');
-        this.isPlaying = false;
-        this.setupEventListeners();
-    }
-
-    setupEventListeners() {
-        // 同时监听点击和触摸事件
-        this.radioIcon.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.togglePlay();
-        });
-        
-        this.radioIcon.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            this.togglePlay();
-        });
-
-        // 添加音频加载状态监听
-        this.audioPlayer.addEventListener('canplaythrough', () => {
-            console.log('Audio is ready to play');
-        });
-
-        // 添加错误处理
-        this.audioPlayer.addEventListener('error', (e) => {
-            console.error('Audio error:', e);
-        });
-    }
-
-    async togglePlay() {
-        try {
-            if (this.isPlaying) {
-                await this.pause();
-            } else {
-                // 在移动端触发用户交互后立即播放
-                const playPromise = this.audioPlayer.play();
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        this.isPlaying = true;
-                        this.radioIcon.classList.add('playing');
-                        document.getElementById('mainTitle').classList.add('playing');
-                        console.log('Playing started successfully');
-                    }).catch(error => {
-                        console.error('Play failed:', error);
-                    });
-                }
+    function updateFavoriteStatus() {
+        favoriteHearts.forEach(heart => {
+            const toolItem = heart.closest('.tool-item');
+            const toolId = toolItem.getAttribute('data-id');
+            heart.classList.remove('active'); // 先移除所有激活状态
+            if (favorites.includes(toolId)) {
+                heart.classList.add('active');
             }
-        } catch (error) {
-            console.error('Toggle play error:', error);
+        });
+    }
+
+    function showFavorites() {
+        favoriteList = document.createElement('div');
+        favoriteList.className = 'favorite-list modal';
+        
+        // 添加标题和关闭按钮
+        const header = document.createElement('div');
+        header.className = 'favorite-header';
+        header.innerHTML = `
+            <h3>我的收藏</h3>
+            <button class="close-btn"><i class="fas fa-times"></i></button>
+        `;
+        favoriteList.appendChild(header);
+        
+        // 添加收藏内容容器
+        const content = document.createElement('div');
+        content.className = 'favorite-content';
+        favoriteList.appendChild(content);
+        
+        updateFavoritesList();
+        document.body.appendChild(favoriteList);
+
+        // 添加关闭按钮事件
+        const closeBtn = favoriteList.querySelector('.close-btn');
+        closeBtn.addEventListener('click', hideFavorites);
+    }
+
+    function updateFavoritesList() {
+        const content = favoriteList.querySelector('.favorite-content');
+        content.innerHTML = '';
+        
+        if (favorites.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-favorites';
+            emptyMessage.textContent = '还没有收藏任何工具';
+            content.appendChild(emptyMessage);
+            return;
+        }
+        
+        favorites.forEach(id => {
+            const originalTool = document.querySelector(`.tool-item[data-id="${id}"]`);
+            if (originalTool) {
+                const toolItem = document.createElement('div');
+                toolItem.className = 'favorite-item';
+                toolItem.innerHTML = `
+                    <i class="${originalTool.querySelector('i:not(.favorite-heart)').className}"></i>
+                    <span>${originalTool.querySelector('span').textContent}</span>
+                `;
+                
+                toolItem.addEventListener('click', () => {
+                    window.open(originalTool.href, '_blank');
+                });
+                
+                content.appendChild(toolItem);
+            }
+        });
+    }
+
+    function hideFavorites() {
+        if (favoriteList) {
+            favoriteList.remove();
+            favoriteList = null;
         }
     }
 
-    async pause() {
-        this.audioPlayer.pause();
+    // 初始化收藏状态
+    favoriteHearts.forEach((heart, index) => {
+        const toolItem = heart.closest('.tool-item');
+        if (!toolItem.hasAttribute('data-id')) {
+            toolItem.setAttribute('data-id', `tool-${index}`);
+        }
+        
+        // 检查是否在收藏列表中，如果是则添加激活状态
+        const toolId = toolItem.getAttribute('data-id');
+        if (favorites.includes(toolId)) {
+            heart.classList.add('active');
+        }
+    });
+
+    // 收藏按钮点击事件
+    favoriteToggle.addEventListener('click', function() {
+        if (!favoriteList) {
+            showFavorites();
+        } else {
+            hideFavorites();
+        }
+    });
+
+    // 工具卡片收藏点击事件
+    favoriteHearts.forEach(heart => {
+        heart.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            const toolItem = this.closest('.tool-item');
+            const toolId = toolItem.getAttribute('data-id');
+            
+            if (this.classList.contains('active')) {
+                this.classList.remove('active');
+                favorites = favorites.filter(id => id !== toolId);
+            } else {
+                this.classList.add('active');
+                favorites.push(toolId);
+            }
+            
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            
+            if (favoriteList) {
+                updateFavoritesList();
+            }
+        });
+    });
+
+    // 点击其他地方关闭收藏列表
+    document.addEventListener('click', function(e) {
+        if (favoriteList && !favoriteList.contains(e.target) && !favoriteToggle.contains(e.target)) {
+            hideFavorites();
+        }
+    });
+
+    // 添加滚动隐藏功能
+    let lastScrollTop = 0;
+    const sideButtons = document.querySelector('.side-buttons');
+    
+    function handleScroll() {
+        const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // 判断滚动方向
+        if (currentScrollTop > lastScrollTop) {
+            // 向下滚动
+            sideButtons.classList.add('hide');
+        } else {
+            // 向上滚动
+            sideButtons.classList.remove('hide');
+        }
+        
+        lastScrollTop = currentScrollTop;
+    }
+
+    // 添加滚动事件监听
+    window.addEventListener('scroll', handleScroll);
+});
+
+class MusicPlayer {
+    constructor() {
+        this.player = document.getElementById('musicPlayer');
+        this.icon = document.getElementById('radioIcon');
         this.isPlaying = false;
-        this.radioIcon.classList.remove('playing');
-        document.getElementById('mainTitle').classList.remove('playing');
+
+        // 添加点击事件监听
+        this.icon.addEventListener('click', () => this.togglePlay());
+    }
+
+    togglePlay() {
+        if (this.isPlaying) {
+            this.player.pause();
+            this.icon.classList.remove('playing');
+        } else {
+            this.player.play();
+            this.icon.classList.add('playing');
+        }
+        this.isPlaying = !this.isPlaying;
     }
 }
 
@@ -209,102 +316,3 @@ class MusicPlayer {
 document.addEventListener('DOMContentLoaded', () => {
     new MusicPlayer();
 });
-
-let snowInterval;
-let isSnowing = false;
-
-function createSnowflake() {
-    const snowflake = document.createElement('div');
-    snowflake.classList.add('snowflake');
-    snowflake.innerHTML = '❅';
-    
-    snowflake.style.left = Math.random() * 100 + 'vw';
-    snowflake.style.fontSize = (Math.random() * 15 + 8) + 'px';
-    snowflake.style.opacity = Math.random() * 0.8 + 0.2;
-    
-    const duration = Math.random() * 5 + 8;
-    snowflake.style.animationDuration = duration + 's';
-    
-    document.body.appendChild(snowflake);
-    
-    setTimeout(() => {
-        snowflake.remove();
-    }, duration * 1000);
-}
-
-function startSnowfall() {
-    if (!isSnowing) {
-        isSnowing = true;
-        snowInterval = setInterval(createSnowflake, 300);
-        document.querySelector('.snow-toggle').classList.add('active');
-    }
-}
-
-function stopSnowfall() {
-    if (isSnowing) {
-        isSnowing = false;
-        clearInterval(snowInterval);
-        document.querySelector('.snow-toggle').classList.remove('active');
-        // 清除现有的雪花
-        const snowflakes = document.querySelectorAll('.snowflake');
-        snowflakes.forEach(snowflake => {
-            snowflake.remove();
-        });
-    }
-}
-
-// 添加开关控制
-document.querySelector('.snow-toggle').addEventListener('click', function() {
-    if (isSnowing) {
-        stopSnowfall();
-    } else {
-        startSnowfall();
-    }
-});
-
-// 页面加载时默认不开启下雪
-// window.addEventListener('load', startSnowfall); 
-
-// 农历数据
-const lunarInfo = [
-    0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2,
-    0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d255, 0x0b540, 0x0d6a0, 0x0ada2, 0x095b0, 0x14977,
-    0x04970, 0x0a4b0, 0x0b4b5, 0x06a50, 0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970,
-    0x06566, 0x0d4a0, 0x0ea50, 0x16a95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950,
-    0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2, 0x0a950, 0x0b557
-];
-
-// 农历月份
-const lunarMonths = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
-
-// 农历日期
-const lunarDays = [
-    '初一', '初二', '初三', '初四', '初五', '初六', '初七', '初八', '初九', '初十',
-    '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十',
-    '廿一', '廿二', '廿三', '廿四', '廿五', '廿六', '廿七', '廿八', '廿九', '三十'
-];
-
-function showDateTime() {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    const day = now.getDay();
-    const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-    
-    // 简单的农历转换（这里使用固定偏移，实际应该根据具体日期计算）
-    // 2024年11月22日对应农历十月初十
-    const lunarMonth = '十';
-    const lunarDay = '初十';
-    
-    const dateStr = `${year}年${month}月${date}日 星期${weekdays[day]}`;
-    const lunarStr = `农历${lunarMonth}月${lunarDay}`;
-    
-    document.getElementById('currentDate').textContent = dateStr;
-    document.getElementById('lunarDate').textContent = lunarStr;
-}
-
-// 每秒更新时间
-setInterval(showDateTime, 1000);
-// 初始化显示
-showDateTime();
