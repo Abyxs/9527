@@ -416,6 +416,44 @@
             .saved-colors {
                 grid-template-columns: repeat(4, 1fr);
             }
+
+            /* 调色盘布局优化 */
+            .color-palettes {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .palette-container {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 0;
+            }
+
+            .color-palette {
+                width: 40px;
+                height: 40px;
+                flex-shrink: 0;
+            }
+
+            .intensity-slider {
+                width: 120px;
+                margin: 0 10px;
+            }
+
+            .intensity-value {
+                width: 50px;
+                text-align: center;
+            }
+
+            .clear-btn {
+                margin-top: 0;
+                padding: 5px 10px;
+                width: 60px;
+            }
         }
     </style>
 </head>
@@ -479,7 +517,7 @@
         </div>
         
         <div class="export-params-container" style="margin-top: 15px;">
-            <label style="display: block; margin-bottom: 10px;">是��在图片中显示调色参数？</label>
+            <label style="display: block; margin-bottom: 10px;">是否在图片中显示调色参数？</label>
             <div style="display: flex; gap: 10px;">
                 <button onclick="exportCurrentColor(true)" class="primary">是</button>
                 <button onclick="exportCurrentColor(false)">否</button>
@@ -744,7 +782,7 @@
             
             // 如果需要显示参数
             if (includeParams) {
-                const padding = Math.min(width, height) * 0.02;  // 边距
+                const padding = Math.min(width, height) * 0.02;  // 距
                 const colorBoxSize = Math.min(width, height) * 0.03;  // 色块大小
                 const lineHeight = colorBoxSize * 1.5;  // 行高
                 const fontSize = Math.min(width, height) * 0.018;  // 字体大小
@@ -826,13 +864,25 @@
         function openColorPicker(index) {
             const input = document.createElement('input');
             input.type = 'color';
+            input.style.opacity = '0';
+            input.style.position = 'absolute';
+            input.style.height = '50px';
+            input.style.width = '50px';
+            
+            // 将input添加到对应的调色盘容器中
+            const palette = document.querySelector(`.palette-container[data-index="${index}"] .color-palette`);
+            palette.appendChild(input);
+            
             input.onchange = (e) => {
                 selectedColors[index] = e.target.value;
-                const palette = document.querySelector(`.palette-container[data-index="${index}"] .color-palette`);
                 palette.style.backgroundColor = e.target.value;
                 palette.style.borderStyle = 'solid';
                 updateMixedColor();
+                // 使用完后移除input元素
+                input.remove();
             };
+            
+            // 触发点击事件
             input.click();
         }
 
