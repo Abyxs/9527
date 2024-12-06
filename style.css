@@ -545,7 +545,7 @@ html {
     scroll-behavior: smooth;
 }
 
-/* 确保footer滚动时足够的空间 */
+/* 确保footer滚动���足够的空间 */
 footer {
     scroll-margin-top: 2rem; /* 确保滚动到footer时有适当的上边距 */
 }
@@ -1276,7 +1276,7 @@ h3,
 .tool-item i {
     font-size: 1.8rem;
     margin-bottom: 0.8rem;
-    transition: all 0.3s ease;
+    color: #ff4757;
 }
 
 .tool-item span {
@@ -1587,7 +1587,7 @@ html {
     .weather-container,
     .header-widgets,  /* 添加父容器 */
     #weather-widget,  /* 添加天气组件ID */
-    .weather-info {   /* 添加天气信��类 */
+    .weather-info {   /* 添加天气信类 */
         display: none !important; /* 使用!important确保隐 */
     }
 
@@ -1806,7 +1806,7 @@ h1#mainTitle.playing {
 
 /* 图标颜色动画 */
 @keyframes iconColorChange {
-    0% { color: #ff4757; }   /* 红色 */
+    0% { color: #ff4757; }   /* 色 */
     25% { color: #2ecc71; }  /* 绿色 */
     50% { color: #3498db; }  /* 蓝色 */
     75% { color: #f1c40f; }  /* 黄色 */
@@ -1837,7 +1837,7 @@ h1#mainTitle.playing {
     color: white;
     font-size: 1em;
     text-shadow: 0 0 5px rgba(255,255,255,0.3);
-    z-index: 1;
+    z-index: 9999; /* 确保在最顶层 */
     pointer-events: none;
     animation: snowfall linear infinite;
 }
@@ -2367,4 +2367,96 @@ h1#mainTitle.playing {
 
 .dark-mode .favorite-item:hover {
     background: #3a3c42;
+}
+
+.tools-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2rem auto;
+    max-width: 800px;
+    padding: 0 1rem;
+    gap: 3rem;
+}
+
+.tools-header h2 {
+    margin: 0;
+    text-align: center;
+}
+
+.control-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    background: white;
+    color: #333;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.control-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.control-btn i {
+    font-size: 1rem;
+}
+
+.snow-btn i {
+    color: #3498db;
+}
+
+.favorite-btn i {
+    color: #ff4757;
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+    .tools-header {
+        padding: 0 0.5rem;
+    }
+
+    .control-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .control-btn i {
+        font-size: 0.9rem;
+    }
+    
+    .control-btn span {
+        display: none; /* 在移动端隐藏按钮文字，只显示图标 */
+    }
+}
+
+/* 按钮暗色模式 */
+.dark-mode .control-btn {
+    background: #2d2f34;
+    color: #e0e0e0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.dark-mode .control-btn:hover {
+    background: #3a3c42;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.dark-mode .control-btn.active {
+    background: #3a3c42;
+}
+
+/* 保持图标颜色不变 */
+.dark-mode .snow-btn i {
+    color: #3498db;
+}
+
+.dark-mode .favorite-btn i {
+    color: #ff4757;
 }
