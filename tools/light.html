@@ -502,7 +502,7 @@
 </head>
 <body>
     <div id="content">
-        <div id="message" style="display: none">点击任意位置打开调色器</div>
+        <div id="message" style="display: none">���击任意位置打开调色器</div>
     </div>
 
     <div id="colorDialog" class="color-dialog">
@@ -567,25 +567,25 @@
         
         <div class="color-palettes">
             <div class="palette-container" data-index="0">
-                <div class="color-palette empty" onclick="openColorPicker(0)"></div>
+                <div class="color-palette empty" onclick="openColorPicker(0, event)"></div>
                 <input type="range" min="0" max="100" value="100" class="intensity-slider" oninput="updateMixedColor()">
                 <span class="intensity-value">100%</span>
                 <button class="clear-btn" onclick="clearPalette(0)">清空</button>
             </div>
             <div class="palette-container" data-index="1">
-                <div class="color-palette empty" onclick="openColorPicker(1)"></div>
+                <div class="color-palette empty" onclick="openColorPicker(1, event)"></div>
                 <input type="range" min="0" max="100" value="100" class="intensity-slider" oninput="updateMixedColor()">
                 <span class="intensity-value">100%</span>
                 <button class="clear-btn" onclick="clearPalette(1)">清空</button>
             </div>
             <div class="palette-container" data-index="2">
-                <div class="color-palette empty" onclick="openColorPicker(2)"></div>
+                <div class="color-palette empty" onclick="openColorPicker(2, event)"></div>
                 <input type="range" min="0" max="100" value="100" class="intensity-slider" oninput="updateMixedColor()">
                 <span class="intensity-value">100%</span>
                 <button class="clear-btn" onclick="clearPalette(2)">清空</button>
             </div>
             <div class="palette-container" data-index="3">
-                <div class="color-palette empty" onclick="openColorPicker(3)"></div>
+                <div class="color-palette empty" onclick="openColorPicker(3, event)"></div>
                 <input type="range" min="0" max="100" value="100" class="intensity-slider" oninput="updateMixedColor()">
                 <span class="intensity-value">100%</span>
                 <button class="clear-btn" onclick="clearPalette(3)">清空</button>
@@ -647,7 +647,7 @@
             { name: "复古级", value: "#FF5700" }   // RGB(255, 87, 0)
         ];
 
-        // 初化���的颜色列表
+        // 初化的颜色列表
         let savedColorsList = JSON.parse(localStorage.getItem('savedColors') || 'null') || [...presetLights];
         
         // 确保预颜色被保存
@@ -798,7 +798,7 @@
             canvas.width = width;
             canvas.height = height;
 
-            // ���背景
+            // 背景
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, width, height);
 
@@ -896,7 +896,7 @@
                 });
             }
             
-            // 导出图片
+            // 导出图
             const link = document.createElement('a');
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             link.download = `color-card-${timestamp}.png`;
@@ -931,7 +931,11 @@
             document.getElementById('mixerDialog').style.display = 'none';
         }
 
-        function openColorPicker(index) {
+        function openColorPicker(index, event) {
+            if (event) {
+                event.stopPropagation(); // 阻止事件冒泡
+            }
+
             // 防止重复创建
             if (document.querySelector('input[type="color"].temp-picker')) {
                 return;
@@ -962,12 +966,10 @@
                 updateMixedColor();
             });
 
-            // 监听change事件处理最终选择
             input.addEventListener('change', () => {
                 input.remove();
             }, { once: true });
             
-            // 处理取消选择���情况
             input.addEventListener('cancel', () => {
                 input.remove();
             }, { once: true });
