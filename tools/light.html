@@ -502,7 +502,7 @@
 </head>
 <body>
     <div id="content">
-        <div id="message" style="display: none">���击任意位置打开调色器</div>
+        <div id="message" style="display: none">击任意位置打开调色器</div>
     </div>
 
     <div id="colorDialog" class="color-dialog">
@@ -698,7 +698,7 @@
             displaySavedColors();
         }
 
-        // 保存新颜色
+        // 保��新颜色
         function saveColor() {
             const name = colorName.value.trim();
             if (!name) {
@@ -931,97 +931,106 @@
             document.getElementById('mixerDialog').style.display = 'none';
         }
 
+        // 修改调色盘相关函数
         function openColorPicker(index, event) {
-            if (event) {
-                event.stopPropagation(); // 阻止事件冒泡
-            }
-
+            // 阻止事件冒泡
+            event.stopPropagation();
+            
             // 防止重复创建
-            if (document.querySelector('input[type="color"].temp-picker')) {
-                return;
+            const existingPicker = document.querySelector('input[type="color"].temp-picker');
+            if (existingPicker) {
+                existingPicker.remove();
             }
 
             const input = document.createElement('input');
             input.type = 'color';
             input.className = 'temp-picker';
+            
+            // 如果当前调色盘已有颜色，设置为当前颜色
+            if (selectedColors[index]) {
+                input.value = selectedColors[index];
+            }
+            
             input.style.cssText = `
                 opacity: 0;
-                position: fixed;
+                position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
                 height: 100%;
-                z-index: 2000;
+                cursor: pointer;
             `;
             
-            document.body.appendChild(input);
+            const palette = document.querySelector(`.palette-container[data-index="${index}"] .color-palette`);
+            palette.style.position = 'relative';
+            palette.appendChild(input);
             
-            // 监听input事件实现实时更新
+            // 实时更新颜色
             input.addEventListener('input', (e) => {
                 const newColor = e.target.value;
                 selectedColors[index] = newColor;
-                const palette = document.querySelector(`.palette-container[data-index="${index}"] .color-palette`);
                 palette.style.backgroundColor = newColor;
                 palette.style.borderStyle = 'solid';
                 updateMixedColor();
             });
 
-            input.addEventListener('change', () => {
+            // 颜色选择完成
+            input.addEventListener('change', (e) => {
+                const finalColor = e.target.value;
+                selectedColors[index] = finalColor;
+                palette.style.backgroundColor = finalColor;
+                palette.style.borderStyle = 'solid';
+                updateMixedColor();
                 input.remove();
-            }, { once: true });
+            });
             
+            // 处理取消选择
             input.addEventListener('cancel', () => {
                 input.remove();
-            }, { once: true });
+            });
             
-            setTimeout(() => {
-                input.click();
-            }, 50);
+            input.click();
         }
 
-        // 修改updateMixedColor函数，确保实时更新
+        // 优化混色函数
         function updateMixedColor() {
             const sliders = document.querySelectorAll('.intensity-slider');
-            sliders.forEach((slider, index) => {
-                colorIntensities[index] = parseInt(slider.value);
-                const valueDisplay = slider.nextElementSibling;
-                valueDisplay.textContent = `${slider.value}%`;
+            let totalWeight = 0;
+            let r = 0, g = 0, b = 0;
+
+            // 计算每个颜色的权重和贡献
+            selectedColors.forEach((color, index) => {
+                if (color) {
+                    const intensity = parseInt(sliders[index].value) / 100;
+                    const rgb = hexToRgb(color);
+                    r += rgb.r * intensity;
+                    g += rgb.g * intensity;
+                    b += rgb.b * intensity;
+                    totalWeight += intensity;
+                    
+                    // 更新强度显示
+                    const valueDisplay = sliders[index].nextElementSibling;
+                    valueDisplay.textContent = `${sliders[index].value}%`;
+                }
             });
 
-            const hasAnyColor = selectedColors.some(color => color !== null);
-            
-            if (!hasAnyColor) {
+            // 如果没有选择任何颜色，设置为白色
+            if (totalWeight === 0) {
                 document.body.style.backgroundColor = '#ffffff';
                 content.style.backgroundColor = '#ffffff';
                 selectedColor = '#ffffff';
                 return;
             }
 
-            // 混合颜色
-            let r = 0, g = 0, b = 0;
-            let totalIntensity = 0;
-
-            selectedColors.forEach((color, index) => {
-                if (color) {
-                    const intensity = colorIntensities[index] / 100;
-                    const rgb = hexToRgb(color);
-                    r += rgb.r * intensity;
-                    g += rgb.g * intensity;
-                    b += rgb.b * intensity;
-                    totalIntensity += intensity;
-                }
-            });
-
-            if (totalIntensity > 0) {
-                r = Math.round(r / totalIntensity);
-                g = Math.round(g / totalIntensity);
-                b = Math.round(b / totalIntensity);
-                
-                const mixedColor = rgbToHex(r, g, b);
-                document.body.style.backgroundColor = mixedColor;
-                content.style.backgroundColor = mixedColor;
-                selectedColor = mixedColor;
-            }
+            // 计算加权平均值
+            r = Math.round(r / totalWeight);
+            g = Math.round(g / totalWeight);
+            b = Math.round(b / totalWeight);
+            
+            const mixedColor = rgbToHex(r, g, b);
+            document.body.style.backgroundColor = mixedColor;
+            content.style.backgroundColor = mixedColor;
+            selectedColor = mixedColor;
         }
 
         // 辅助函数：将十六进制颜色转换为RGB
@@ -1039,17 +1048,19 @@
             return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
         }
 
-        // 清空单个调色盘的函数
+        // 优化清空调色盘函数
         function clearPalette(index) {
             selectedColors[index] = null;
             const palette = document.querySelector(`.palette-container[data-index="${index}"] .color-palette`);
+            const slider = document.querySelector(`.palette-container[data-index="${index}"] .intensity-slider`);
+            const valueDisplay = slider.nextElementSibling;
+            
+            // 重置调色盘样式
             palette.style.backgroundColor = '#f5f5f5';
             palette.style.borderStyle = 'dashed';
             
-            // 重置滑块值
-            const slider = document.querySelector(`.palette-container[data-index="${index}"] .intensity-slider`);
+            // 重置滑块
             slider.value = 100;
-            const valueDisplay = slider.nextElementSibling;
             valueDisplay.textContent = '100%';
             
             // 更新混合颜色
